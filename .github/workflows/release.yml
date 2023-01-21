@@ -1,0 +1,30 @@
+name: release
+on:
+  workflow_dispatch:
+    inputs:
+      platform:
+        description: "Release platform"
+        required: true
+        default: "jvm"
+      scalaVersion:
+        description: "Scala binary version"
+        required: true
+        default: "3"
+      specVersion:
+        description: "Spec version"
+        required: true
+
+concurrency:
+  group: release-${{ github.event.inputs.platform }}-${{ github.event.inputs.scalaVersion }}-${{ github.event.inputs.specVersion }}
+
+jobs:
+  release:
+    name: Release
+    if: startsWith(github.ref, 'refs/tags/v') || (github.event_name == 'workflow_dispatch')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Print input
+        run: |
+          echo platform ${{ github.event.inputs.platform }}
+          echo scalaVersion ${{ github.event.inputs.scalaVersion }}
+          echo specVersion: ${{ github.event.inputs.specVersion }}
