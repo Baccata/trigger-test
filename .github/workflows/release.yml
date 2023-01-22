@@ -2,29 +2,41 @@ name: release
 on:
   workflow_dispatch:
     inputs:
+      artifact:
+        description: "Artifact"
+        required: true
       platform:
         description: "Release platform"
         required: true
         default: "jvm"
-      scalaVersion:
+      scalaBinaryVersion:
         description: "Scala binary version"
         required: true
         default: "3"
       specVersion:
         description: "Spec version"
         required: true
+      callbackURL:
+        description: "Callback URL"
+        required: true
 
 concurrency:
-  group: release-${{ github.event.inputs.platform }}-${{ github.event.inputs.scalaVersion }}-${{ github.event.inputs.specVersion }}
+  group: release-${{ github.event.inputs.artifact }}-${{ github.event.inputs.platform }}-${{ github.event.inputs.scalaBinaryVersion }}-${{ github.event.inputs.specVersion }}
 
 jobs:
   release:
-    name: Release ${{ github.event.inputs.platform }}-${{ github.event.inputs.scalaVersion }}-${{ github.event.inputs.specVersion }}
+    name: Release ${{ github.event.inputs.artifact }}-${{ github.event.inputs.platform }}-${{ github.event.inputs.scalaBinaryVersion }}-${{ github.event.inputs.specVersion }}
     if: startsWith(github.ref, 'refs/tags/v') || (github.event_name == 'workflow_dispatch')
     runs-on: ubuntu-latest
     steps:
       - name: Print input
         run: |
+          echo artifact ${{ github.event.inputs.artifact }}
           echo platform ${{ github.event.inputs.platform }}
-          echo scalaVersion ${{ github.event.inputs.scalaVersion }}
+          echo scalaBinaryVersion ${{ github.event.inputs.scalaBinaryVersion }}
           echo specVersion: ${{ github.event.inputs.specVersion }}
+
+      - name: Callback
+        run: |
+          echo Calling back ${{ github.event.inputs.callbackURL }}
+          curl ${{ github.event.inputs.callbackURL }}
